@@ -16,6 +16,8 @@ public class GameHandler : NetworkBehaviour
     private List<int> p3Cards;
     private List<int> p4Cards;
 
+    private List<int> currentHand = new List<int>(4);
+
     public bool signalGameStart;
 
     private void Update()
@@ -40,4 +42,6 @@ public class GameHandler : NetworkBehaviour
             card.GetComponent<Card>().SetValue(cardValue);
         }
     }
+
+    
 }

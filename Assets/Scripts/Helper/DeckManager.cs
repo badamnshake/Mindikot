@@ -66,12 +66,12 @@ public static class DeckManager
     }
 
     /// <summary>
-    /// from cards Array returns the value that wins in a face off in mindikot
+    /// from cards Array returns the value that wins in a face off in mindikot if not mindi in hand returns -1 otherwise index
     /// </summary>
-    public static int DeclareWinnerCard(List<int> cards, Suit turnSuit, Suit rulingSuit)
+    public static int DeclareWinnerCard(List<int> cards, Suit turnSuit, Suit rulingSuit, out int mindiHand)
     {
+        mindiHand = -1;
         List<int> cardShortList = new List<int>();
-
 
         if (turnSuit == Suit.None)
         {
@@ -86,10 +86,8 @@ public static class DeckManager
 
         foreach (var card in cards)
         {
-            if (IsInSuit(rulingSuit, card))
-            {
-                cardShortList.Add(card);
-            }
+            if (MindiCheck(card)) mindiHand = card;
+            if (IsInSuit(rulingSuit, card)) cardShortList.Add(card);
         }
 
         // if there were none ruling cards then take turn as ruling
@@ -111,6 +109,9 @@ public static class DeckManager
     static bool IsInSuit(Suit suit, int card) =>
         card > (int) suit * 13 - 13 && card <= (int) suit * 13;
 
-    static Suit GetCardSuit(int card) =>
-        card <= 13 ? Suit.Spade : card <= 26 ? Suit.Heart : card <= 39 ? Suit.Diamond : Suit.Club;
+    // static Suit GetCardSuit(int card) =>
+    //     card <= 13 ? Suit.Spade : card <= 26 ? Suit.Heart : card <= 39 ? Suit.Diamond : Suit.Club;
+
+    static bool MindiCheck(int card)
+        => card == 8 || card == 21 || card == 34 || card == 47;
 }
