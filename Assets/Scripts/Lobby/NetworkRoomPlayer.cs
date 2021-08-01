@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Mirror;
 using TMPro;
 using UnityEngine;
@@ -7,36 +5,38 @@ using UnityEngine.UI;
 
 public class NetworkRoomPlayer : NetworkBehaviour
 {
-    [Header("UI")] [SerializeField] private GameObject lobbyUI = null;
+    [Header("UI")] [SerializeField] private GameObject lobbyUI;
     [SerializeField] private TMP_Text[] playerNameTexts = new TMP_Text[4];
-    [SerializeField] private TMP_Text[] playerReadyTexts = new TMP_Text[4];
-    [SerializeField] private Button startGameButton = null;
+    [SerializeField] private Image[] playerReadyImages = new Image[4];
+    [SerializeField] private Button startGameButton;
+    [SerializeField] private Sprite notReadySprite;
+    [SerializeField] private Sprite readySprite;
 
     [SyncVar(hook = nameof(HandleDisplayNameChanged))]
-    public string DisplayName = "Loading...";
+    public string displayName = "Loading...";
 
     [SyncVar(hook = nameof(HandleReadyStatusChanged))]
-    public bool IsReady = false;
+    public bool isReady;
 
     public void HandleReadyStatusChanged(bool oldValue, bool newValue) => UpdateDisplay();
     public void HandleDisplayNameChanged(string oldValue, string newValue) => UpdateDisplay();
-    private bool isLeader;
+    private bool _isLeader;
 
-    private NetManLobby room;
+    private NetManLobby _room;
 
     private NetManLobby Room
     {
         get
         {
-            if (room != null)
+            if (_room != null)
             {
-                return room;
+                return _room;
             }
 
-            return room = NetworkManager.singleton as NetManLobby;
+            return _room = NetworkManager.singleton as NetManLobby;
         }
     }
-
+    
     private void UpdateDisplay()
     {
         if (!hasAuthority)
@@ -51,6 +51,19 @@ public class NetworkRoomPlayer : NetworkBehaviour
             }
 
             return;
+        }
+
+        for (int i = 0; i < playerNameTexts.Length; i++)
+        {
+            playerNameTexts[i].text = "Waiting For Player...";
+            playerReadyImages[i].enabled = false;
+        }
+
+        for (int i = 0; i < Room.RoomPlayers.Count; i++)
+        {
+            playerNameTexts[i].text = Room.RoomPlayers[i].displayName;
+            playerReadyImages[i].enabled = true;
+            playerReadyImages[i].sprite = Room.RoomPlayers[i].isReady ? readySprite : notReadySprite;
         }
     }
 
@@ -81,14 +94,14 @@ public class NetworkRoomPlayer : NetworkBehaviour
     {
         set
         {
-            isLeader = value;
+            _isLeader = value;
             startGameButton.gameObject.SetActive(value);
         }
     }
 
     public void HandleReadyToStart(bool readyToStart)
     {
-        if (!isLeader)
+        if (!_isLeader)
         {
             return;
         }
@@ -97,15 +110,15 @@ public class NetworkRoomPlayer : NetworkBehaviour
     }
 
     [Command]
-    private void CmdSetDisplayName(string displayName)
+    private void CmdSetDisplayName(string newName)
     {
-        DisplayName = displayName;
+        displayName = newName;
     }
 
     [Command]
     public void CmdReadyUp()
     {
-        IsReady = !IsReady;
+        isReady = !isReady;
 
         Room.NotifyPlayersOfReadyState();
     }
@@ -115,6 +128,7 @@ public class NetworkRoomPlayer : NetworkBehaviour
     {
         if (Room.RoomPlayers[0].connectionToClient != connectionToClient)
         {
+            print("what the fuck");
             return;
         }
 

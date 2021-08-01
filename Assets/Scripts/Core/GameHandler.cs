@@ -1,47 +1,43 @@
 using System.Collections.Generic;
-using DataStructs;
+using System.Linq;
 using Mirror;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameHandler : NetworkBehaviour
 {
-    public GameObject cardPrefab;
-    public GameObject playerArea;
-    public CardImages cardImages;
-    public CardStyle currentCardStyle = CardStyle.Normal;
+    private int[][] _distributedCards;
 
-    private List<int> p1Cards;
-    private List<int> p2Cards;
-    private List<int> p3Cards;
-    private List<int> p4Cards;
+    private List<NetworkGamePlayer> _playerList = new List<NetworkGamePlayer>();
+    private bool _signalGameStart;
 
     private List<int> currentHand = new List<int>(4);
 
-    public bool signalGameStart;
+    [SerializeField] private ScoreBoard _scoreBoard;
+
 
     private void Update()
     {
-        if (signalGameStart)
+        if (!isServer) return;
+        if (_signalGameStart)
         {
+            _scoreBoard.ResetValues();
+            _distributedCards = DeckManager.DistributeCards();
             DrawCards();
-            signalGameStart = false;
+            _signalGameStart = false;
         }
     }
 
+    [Server]
     public void DrawCards()
     {
-        DeckManager.DistributeCards(out p1Cards, out p2Cards, out p3Cards, out p4Cards);
-        p1Cards.Sort();
-
-        foreach (var cardValue in p1Cards)
+        for (var i = 0; i < _playerList.Count; i++)
         {
-            GameObject card = Instantiate(cardPrefab, Vector2.zero, Quaternion.identity);
-            card.transform.SetParent(playerArea.transform, false);
-            card.GetComponent<Image>().sprite = cardImages.GetCardImage(cardValue, currentCardStyle);
-            card.GetComponent<Card>().SetValue(cardValue);
+            var gamePlayer = _playerList[i];
+            gamePlayer.SetMyCards(_distributedCards[i].ToList());
         }
     }
 
-    
+
+    public void SetPlayers(List<NetworkGamePlayer> gamePlayers) => _playerList = gamePlayers;
+    public void SetSignalGameStart(bool value) => _signalGameStart = value;
 }

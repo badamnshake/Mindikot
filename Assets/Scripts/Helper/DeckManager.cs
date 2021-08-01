@@ -37,32 +37,26 @@ public static class DeckManager
         _deck = newDeck;
     }
 
-    public static void DistributeCards(out List<int> p1, out List<int> p2, out List<int> p3, out List<int> p4)
+    public static int[][] DistributeCards()
     {
         ShuffleDeck();
-        p1 = new List<int>();
-        p2 = new List<int>();
-        p3 = new List<int>();
-        p4 = new List<int>();
-        for (int i = 0; i < 13; i++)
+        int[][] distCards = new int[4][];
+        distCards[0] = new int[13];
+        distCards[1] = new int[13];
+        distCards[2] = new int[13];
+        distCards[3] = new int[13];
+
+
+        for (int i = 0; i < 4; i++)
         {
-            p1.Add(_deck[i]);
+            for (int j = 0; j < 13; j++)
+            {
+                int index = (i * 13) + j;
+                distCards[i][j] = _deck[index];
+            }
         }
 
-        for (int i = 13; i < 26; i++)
-        {
-            p2.Add(_deck[i]);
-        }
-
-        for (int i = 26; i < 39; i++)
-        {
-            p3.Add(_deck[i]);
-        }
-
-        for (int i = 39; i < 52; i++)
-        {
-            p4.Add(_deck[i]);
-        }
+        return distCards;
     }
 
     /// <summary>
@@ -109,8 +103,8 @@ public static class DeckManager
     static bool IsInSuit(Suit suit, int card) =>
         card > (int) suit * 13 - 13 && card <= (int) suit * 13;
 
-    // static Suit GetCardSuit(int card) =>
-    //     card <= 13 ? Suit.Spade : card <= 26 ? Suit.Heart : card <= 39 ? Suit.Diamond : Suit.Club;
+    static Suit GetCardSuit(int card) =>
+        card <= 13 ? Suit.Spade : card <= 26 ? Suit.Heart : card <= 39 ? Suit.Diamond : Suit.Club;
 
     static bool MindiCheck(int card)
         => card == 8 || card == 21 || card == 34 || card == 47;

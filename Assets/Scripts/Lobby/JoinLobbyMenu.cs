@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class JoinLobbyMenu : MonoBehaviour
 {
-    [SerializeField] private NetManLobby _netManLobby;
+    [SerializeField] private NetManLobby netManLobby;
 
     [Header("Ui")] [SerializeField] private GameObject landingPagePanel = null;
 
@@ -28,8 +28,8 @@ public class JoinLobbyMenu : MonoBehaviour
     public void JoinLobby()
     {
         string ipAddress = ipAddressInputField.text;
-        _netManLobby.networkAddress = ipAddress;
-        _netManLobby.StartClient();
+        netManLobby.networkAddress = ipAddress;
+        netManLobby.StartClient();
         joinButton.interactable = false;
     }
 
@@ -43,6 +43,7 @@ public class JoinLobbyMenu : MonoBehaviour
 
     void HandleClientDisconnected()
     {
+        // TODO: add a pop up message no host found
         joinButton.interactable = true;
     }
 }

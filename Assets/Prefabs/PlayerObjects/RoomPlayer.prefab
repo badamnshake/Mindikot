@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9779381509913836}
   - component: {fileID: 3258432085877836019}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: p2Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 7944540103319443329}
   - component: {fileID: 676119784021326543}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: p3Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -286,7 +286,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4253948506781911132
 RectTransform:
   m_ObjectHideFlags: 0
@@ -382,7 +382,7 @@ GameObject:
   - component: {fileID: 6838619092561686778}
   - component: {fileID: 6470340417013489153}
   m_Layer: 0
-  m_Name: TickBox
+  m_Name: p4Ready
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -699,7 +699,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1612284702259801885}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7959975285231087178}
+        m_TargetAssemblyTypeName: NetworkRoomPlayer, Assembly-CSharp
+        m_MethodName: CmdReadyUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4117212222767834017
 GameObject:
   m_ObjectHideFlags: 0
@@ -712,7 +724,7 @@ GameObject:
   - component: {fileID: 3074949962642202732}
   - component: {fileID: 1115505629834337980}
   m_Layer: 0
-  m_Name: Player1 (1)
+  m_Name: Player2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -789,7 +801,7 @@ GameObject:
   - component: {fileID: 2843019482416690447}
   - component: {fileID: 5957082864309063948}
   m_Layer: 0
-  m_Name: Player1 (2)
+  m_Name: Player3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -943,7 +955,7 @@ GameObject:
   - component: {fileID: 4202572010433427648}
   - component: {fileID: 9182597795750857083}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: p1Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1077,7 +1089,7 @@ GameObject:
   - component: {fileID: 4957263499172492180}
   - component: {fileID: 1261241722478796089}
   m_Layer: 0
-  m_Name: TickBox
+  m_Name: p1Ready
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1152,7 +1164,7 @@ GameObject:
   - component: {fileID: 555048450069174605}
   - component: {fileID: 9216401378713841221}
   m_Layer: 0
-  m_Name: TickBox
+  m_Name: p2Ready
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1227,7 +1239,7 @@ GameObject:
   - component: {fileID: 3401486885119814228}
   - component: {fileID: 4819527631112853270}
   m_Layer: 0
-  m_Name: Player1 (3)
+  m_Name: Player4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1477,7 +1489,7 @@ GameObject:
   - component: {fileID: 6733274300087126877}
   - component: {fileID: 5467418923202545267}
   m_Layer: 0
-  m_Name: TickBox
+  m_Name: p3Ready
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1604,20 +1616,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  lobbyUI: {fileID: 0}
+  lobbyUI: {fileID: 2685921189527877376}
   playerNameTexts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  playerReadyTexts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  startGameButton: {fileID: 0}
-  DisplayName: Loading...
-  IsReady: 0
+  - {fileID: 9182597795750857083}
+  - {fileID: 3258432085877836019}
+  - {fileID: 676119784021326543}
+  - {fileID: 6696332388216784742}
+  playerReadyImages:
+  - {fileID: 1261241722478796089}
+  - {fileID: 9216401378713841221}
+  - {fileID: 5467418923202545267}
+  - {fileID: 6470340417013489153}
+  startGameButton: {fileID: 5685205695238130533}
+  notReadySprite: {fileID: 21300000, guid: 1c15876f173b7b74397325bdb5a29827, type: 3}
+  readySprite: {fileID: 21300000, guid: adaf9b8f0ddaac146921634d06b15538, type: 3}
+  displayName: Loading...
+  isReady: 0
 --- !u!1 &8752505748451433322
 GameObject:
   m_ObjectHideFlags: 0
@@ -1636,7 +1650,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6542899900838553073
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1738,7 +1752,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6005113641140555964}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7959975285231087178}
+        m_TargetAssemblyTypeName: NetworkRoomPlayer, Assembly-CSharp
+        m_MethodName: CmdStartGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &9116584225167752515
 GameObject:
   m_ObjectHideFlags: 0
@@ -1751,7 +1777,7 @@ GameObject:
   - component: {fileID: 2778903009475224484}
   - component: {fileID: 6696332388216784742}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: p4Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

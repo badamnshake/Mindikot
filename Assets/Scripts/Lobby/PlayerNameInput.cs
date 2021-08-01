@@ -15,24 +15,24 @@ public class PlayerNameInput : MonoBehaviour
     private const string PlayerPrefsNameKey = "PlayerName";
 
     // Start is called before the first frame update
-    void Start() => SetInputField();
-
-    private void SetInputField()
-    {
-        if (!PlayerPrefs.HasKey(PlayerPrefsNameKey))
-        {
-            return;
-        }
-
-        string defaultName = PlayerPrefs.GetString(PlayerPrefsNameKey);
-        nameInputField.text = defaultName;
-        SetPlayerName(defaultName);
-    }
-
-    public void SetPlayerName(string defaultName)
-    {
-        continueButton.interactable = !string.IsNullOrEmpty(defaultName);
-    }
+    // void Start() => SetInputField();
+    //
+    // private void SetInputField()
+    // {
+    //     if (!PlayerPrefs.HasKey(PlayerPrefsNameKey))
+    //     {
+    //         return;
+    //     }
+    //
+    //     string defaultName = PlayerPrefs.GetString(PlayerPrefsNameKey);
+    //     nameInputField.text = defaultName;
+    //     SetPlayerName(defaultName);
+    // }
+    //
+    // public void SetPlayerName(string defaultName)
+    // {
+    //     continueButton.interactable = !string.IsNullOrEmpty(defaultName);
+    // }
 
     public void SavePlayerName()
     {
