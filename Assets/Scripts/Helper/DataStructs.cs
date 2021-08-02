@@ -22,4 +22,11 @@ namespace DataStructs
         Play,
         End
     }
+
+    public enum Team
+    {
+        None = 0,
+        Blue = 1,
+        Orange = 2
+    }
 }

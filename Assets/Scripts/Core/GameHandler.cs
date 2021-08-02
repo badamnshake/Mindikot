@@ -49,34 +49,51 @@ public class GameHandler : NetworkBehaviour
         {
             var gamePlayer = _playerList[i];
             gamePlayer.SetMyCards(_distributedCards[i].ToList());
-            gamePlayer.StartTurn();
+        }
+
+        StartCoroutine(GameLoop());
+    }
+
+    [Server]
+    IEnumerator GameLoop()
+    {
+        currentTurn = 0;
+        Team winnerTeam; // blue team wins -1 orange -2
+        Suit currentTurnSuit = Suit.None;
+        Suit rullingSuit = Suit.None;
+        int wasMindiHand;
+
+        for (int i = 0; i < 13; i++)
+        {
+            currentHand.Clear();
+            
+            for (int j = 0; j < 4; j++)
+            {
+                var playerInTurn = _playerList[currentTurn];
+                playerInTurn.StartTurn();
+
+                yield return new WaitUntil(() => playerInTurn.cardToPlay > -1);
+                if (currentTurnSuit == Suit.None) currentTurnSuit = DeckManager.GetCardSuit(playerInTurn.cardToPlay);
+
+                currentHand[currentTurn] = playerInTurn.cardToPlay;
+                currentHand.Add(playerInTurn.cardToPlay);
+                RotateTurn();
+            }
+
+            int winIndex = DeckManager.DeclareWinnerCard(currentHand, currentTurnSuit, rullingSuit, out wasMindiHand);
+
+            currentTurn = winIndex;
+
+            if (winIndex == 0 || winIndex == 2)
+                winnerTeam = Team.Blue;
+            else
+                winnerTeam = Team.Orange;
+            _scoreBoard.IncreaseTeamHandCount(winnerTeam);
+
+            if (wasMindiHand != -1) _scoreBoard.MindiIsCaptured(DeckManager.GetCardSuit(wasMindiHand), winnerTeam);
         }
     }
 
-    // [Server]
-    // // IEnumerator GameLoop()
-    // {
-    //     yield return new WaitUntil(() => _playerList[0].cardToPlay > -1);
-    //     for (int i = 0; i < 13; i++)
-    //     {
-    //         // yield return TurnLoop();
-    //     }
-    // }
-    //
-    // IEnumerator TurnLoop()
-    // {
-    //     currentHand.Clear();
-    //     for (int i = 0; i < 4; i++)
-    //     {
-    //         yield return new WaitForSeconds(7f);
-    //         currentHand.Add(_playerList[currentTurn].cardToPlay);
-    //         RotateTurn();
-    //     }
-    //
-    //     yield return new WaitForSeconds(1f);
-    //
-    //     print("one hand played");
-    // }
 
     [Server]
     void RotateTurn() => currentTurn = currentTurn + 1 == _playerList.Count ? 0 : currentTurn + 1;

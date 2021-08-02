@@ -218,6 +218,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 563217568}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &73826943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1924,11 +1936,13 @@ MonoBehaviour:
   - {fileID: 2299305306962424103, guid: a0310404d264cf34d805025e3a92a740, type: 3}
   - {fileID: 2439215883507977619, guid: 46ca3cd6c573b95419459c8399d80b8d, type: 3}
   - {fileID: 1177999943327333187, guid: 6d832b4e86c60b040b2d2f7ebd68171f, type: 3}
+  - {fileID: 2419256892414036048, guid: 2d03c04de60042d419f99008830675a6, type: 3}
   minPlayers: 1
   menuScene: Assets/Scenes/MenuScene.unity
   gameScene: Assets/Scenes/TheGame.unity
   roomPlayerPrefab: {fileID: 7959975285231087178, guid: 02c7bbac0adfe424eb35c55470d1cbc4, type: 3}
   gamePlayerPrefab: {fileID: 6534555331869692536, guid: a0310404d264cf34d805025e3a92a740, type: 3}
+  gameHandlerPrefab: {fileID: 7531798373507487534, guid: 2d03c04de60042d419f99008830675a6, type: 3}
 --- !u!4 &1208372749
 Transform:
   m_ObjectHideFlags: 0

@@ -20,16 +20,16 @@ public class ScoreBoard : NetworkBehaviour
     // 0- none 1 - blue  2 - orange has the 10 card 
 
     [SyncVar(hook = nameof(OnSpadeMindiCaptured))]
-    private int spadeCaptured = -1;
+    private Team spadeCaptured;
 
     [SyncVar(hook = nameof(OnHeartMindiCaptured))]
-    private int heartCaptured = -1;
+    private Team heartCaptured;
 
     [SyncVar(hook = nameof(OnDiamondMindiCaptured))]
-    private int diamondCaptured = -1;
+    private Team diamondCaptured;
 
     [SyncVar(hook = nameof(OnClubMindiCaptured))]
-    private int clubCaptured = -1;
+    private Team clubCaptured;
 
     [SyncVar(hook = nameof(SetTeamBlueHandCountDisplay))]
     private int _tBlueHandsCount = -1;
@@ -51,20 +51,20 @@ public class ScoreBoard : NetworkBehaviour
         _tBlueMindiCount = 0;
         _tOrangeMindiCount = 0;
 
-        spadeCaptured = 0;
-        heartCaptured = 0;
-        diamondCaptured = 0;
-        clubCaptured = 0;
+        spadeCaptured = Team.None;
+        heartCaptured = Team.None;
+        diamondCaptured = Team.None;
+        clubCaptured = Team.None;
     }
 
     // Public methods :invoked by GameHandler
 
     [Server]
-    public void MindiIsCaptured(Suit suit, int team)
+    public void MindiIsCaptured(Suit suit, Team team)
     {
-        if (team == 1)
+        if (team == Team.Blue)
             _tBlueMindiCount++;
-            
+
         else
             _tOrangeMindiCount++;
 
@@ -78,10 +78,16 @@ public class ScoreBoard : NetworkBehaviour
     }
 
     [Server]
-    public void IncreaseBlueTeamCount() => _tBlueHandsCount++;
+    public void IncreaseTeamHandCount(Team team)
+    {
+        if (team == Team.Blue)
+            _tBlueHandsCount++;
+        else if (team == Team.Orange)
+            _tOrangeHandsCount++;
+        else
+            Debug.Log("passinng team as none in scoreboard probably init error");
+    }
 
-    [Server]
-    public void IncreaseOrangeTeamCount() => _tOrangeHandsCount++;
 
     // 0 - none 1 - blue  2 - orange has won
     public int CheckForWin()
@@ -102,19 +108,20 @@ public class ScoreBoard : NetworkBehaviour
     void SetTeamBlueHandCountDisplay(int oldValue, int newValue) =>
         tBlueCountDisplay.text = _tBlueHandsCount.ToString();
 
-    void OnSpadeMindiCaptured(int oldValue, int newValue) =>
-        cardsCapturedDisplay[0].color = newValue == 1 ? blueTeamColor :
-            spadeCaptured == 2 ? orangeTeamColor : notCapturedColor;
+    void OnSpadeMindiCaptured(Team oldValue, Team newValue) => ChagneCardsCapturedDisplay(newValue, 0);
 
-    void OnHeartMindiCaptured(int oldValue, int newValue) =>
-        cardsCapturedDisplay[1].color = newValue == 1 ? blueTeamColor :
-            spadeCaptured == 2 ? orangeTeamColor : notCapturedColor;
+    void OnHeartMindiCaptured(Team oldValue, Team newValue) => ChagneCardsCapturedDisplay(newValue, 1);
 
-    void OnDiamondMindiCaptured(int oldValue, int newValue) =>
-        cardsCapturedDisplay[2].color = newValue == 1 ? blueTeamColor :
-            spadeCaptured == 2 ? orangeTeamColor : notCapturedColor;
+    void OnDiamondMindiCaptured(Team oldValue, Team newValue) => ChagneCardsCapturedDisplay(newValue, 2);
+    void OnClubMindiCaptured(Team oldValue, Team newValue) => ChagneCardsCapturedDisplay(newValue, 3);
 
-    void OnClubMindiCaptured(int oldValue, int newValue) =>
-        cardsCapturedDisplay[3].color = newValue == 1 ? blueTeamColor :
-            spadeCaptured == 2 ? orangeTeamColor : notCapturedColor;
+    void ChagneCardsCapturedDisplay(Team team, int index)
+    {
+        if (team == Team.Blue)
+            cardsCapturedDisplay[2].color = blueTeamColor;
+        else if (team == Team.Orange)
+            cardsCapturedDisplay[2].color = orangeTeamColor;
+        else
+            cardsCapturedDisplay[2].color = notCapturedColor;
+    }
 }

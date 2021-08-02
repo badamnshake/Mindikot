@@ -14,6 +14,7 @@ public class NetManLobby : NetworkManager
 
     [Header("Room")] [SerializeField] private NetworkRoomPlayer roomPlayerPrefab = null;
     [Header("Room")] [SerializeField] private NetworkGamePlayer gamePlayerPrefab = null;
+    [Header("Room")] [SerializeField] private GameHandler gameHandlerPrefab = null;
 
     public static event Action OnClientConnected;
     public static event Action OnClientDisconnected;
@@ -157,8 +158,10 @@ public class NetManLobby : NetworkManager
         // if (sceneName.StartsWith("Scene_Map"))
         // {
         print(GamePlayers.Count);
-        GameObject.FindWithTag("gameHandler").GetComponent<GameHandler>().SetPlayers(GamePlayers);
-        GameObject.FindWithTag("gameHandler").GetComponent<GameHandler>().StartGame();
+        GameHandler gameHandler = Instantiate(gameHandlerPrefab, transform);
+        NetworkServer.Spawn(gameHandler.gameObject);
+        gameHandler.SetPlayers(GamePlayers);
+        gameHandler.StartGame();
     }
 
     public override void OnServerReady(NetworkConnection conn)

@@ -28,7 +28,7 @@ public class NetworkGamePlayer : NetworkBehaviour
 
 
     [SyncVar(hook = nameof(SetCards))] private List<int> _myCards = new List<int>();
-    [SyncVar(hook = nameof(PlayTurn))] private bool isMyTurn = false;
+    [SyncVar(hook = nameof(OnStartTurn))] private bool isMyTurn = false;
 
     public int cardToPlay;
 
@@ -65,6 +65,46 @@ public class NetworkGamePlayer : NetworkBehaviour
     [Server]
     public void StartTurn() => isMyTurn = true;
 
+    public void OnStartTurn(bool oldValue, bool newValue)
+    {
+        if (isMyTurn)
+        {
+            cardToPlay = -1;
+            StartCoroutine(TurnBehaviour());
+        }
+    }
+
+    IEnumerator TurnBehaviour()
+    {
+        yield return new WaitForSeconds(7f);
+        if (cardToPlay == -1) cardToPlay = PlayRandomCard();
+
+
+        foreach (var card in cards)
+        {
+            if (card.GetValue() == cardToPlay)
+            {
+                card.gameObject.SetActive(false);
+            }
+        }
+
+        isMyTurn = false;
+        _myCards.Remove(cardToPlay);
+    }
+
+    public void OnButtonClickPlayCard(Card card)
+    {
+        if (isMyTurn)
+        {
+            cardToPlay = card.GetValue();
+            card.gameObject.SetActive(false);
+            StopCoroutine(TurnBehaviour());
+
+            isMyTurn = false;
+            _myCards.Remove(cardToPlay);
+        }
+    }
+
     public override void OnStartAuthority()
     {
         lobbyUI.SetActive(true);
@@ -72,18 +112,7 @@ public class NetworkGamePlayer : NetworkBehaviour
 
 
     // when its turn this will be played
-    public void PlayTurn(bool oldValue, bool newValue) => StartCoroutine(MyTurn());
 
-    IEnumerator MyTurn()
-    {
-        cardToPlay = -1;
-        yield return new WaitForSeconds(7f);
-        isMyTurn = false;
-
-        if (cardToPlay == -1) cardToPlay = PlayRandomCard();
-
-        _myCards.Remove(cardToPlay);
-    }
 
     private int PlayRandomCard()
     {
@@ -91,14 +120,9 @@ public class NetworkGamePlayer : NetworkBehaviour
         return _myCards[0];
     }
 
+    bool IsCardInSuit(Suit suit, int card) =>
+        card > (int) suit * 13 - 13 && card <= (int) suit * 13;
 
-    public void OnButtonClickPlayCard(Card card)
-    {
-        if (!isMyTurn) return;
-        cardToPlay = card.GetValue();
-        card.gameObject.SetActive(false);
-        isMyTurn = false;
-    }
 
     [Server]
     public void SetMyCards(List<int> listCards) => _myCards = listCards;
@@ -108,9 +132,9 @@ public class NetworkGamePlayer : NetworkBehaviour
     {
         // instantiating cards on the ui to play
 
-        for (var i = 0; i < newCards.Count; i++)
+        for (var i = 0; i < _myCards.Count; i++)
         {
-            int value = newCards[i];
+            int value = _myCards[i];
             cards[i].SetValue(value);
             cardImageDisplay[i].sprite = cardImages.GetCardImage(value, currentCardStyle);
             cards[i].gameObject.SetActive(true);

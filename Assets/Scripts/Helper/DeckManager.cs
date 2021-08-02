@@ -100,10 +100,10 @@ public static class DeckManager
     }
 
 
-    static bool IsInSuit(Suit suit, int card) =>
+     static bool IsInSuit(Suit suit, int card) =>
         card > (int) suit * 13 - 13 && card <= (int) suit * 13;
 
-    static Suit GetCardSuit(int card) =>
+    public static Suit GetCardSuit(int card) =>
         card <= 13 ? Suit.Spade : card <= 26 ? Suit.Heart : card <= 39 ? Suit.Diamond : Suit.Club;
 
     static bool MindiCheck(int card)
