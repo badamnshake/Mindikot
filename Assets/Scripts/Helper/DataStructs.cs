@@ -15,4 +15,11 @@ namespace DataStructs
         Ancient = 1,
         Retro = 2
     }
+
+    public enum GameState
+    {
+        Start,
+        Play,
+        End
+    }
 }

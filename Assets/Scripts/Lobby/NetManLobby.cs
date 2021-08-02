@@ -158,7 +158,7 @@ public class NetManLobby : NetworkManager
         // {
         print(GamePlayers.Count);
         GameObject.FindWithTag("gameHandler").GetComponent<GameHandler>().SetPlayers(GamePlayers);
-        GameObject.FindWithTag("gameHandler").GetComponent<GameHandler>().SetSignalGameStart(true);
+        GameObject.FindWithTag("gameHandler").GetComponent<GameHandler>().StartGame();
     }
 
     public override void OnServerReady(NetworkConnection conn)

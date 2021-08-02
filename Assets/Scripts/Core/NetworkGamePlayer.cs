@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DataStructs;
 using Mirror;
@@ -18,11 +19,18 @@ public class NetworkGamePlayer : NetworkBehaviour
     [SerializeField] private Image[] cardImageDisplay;
     [SerializeField] private Card[] cards;
 
+    // time indicator used for UI
+    [SerializeField] private Color indicatorOffColor;
+    [SerializeField] private Color indicatorOnColor;
+    [SerializeField] private Color indicatorWarningColor;
 
     [SyncVar] private string _displayName = "Loading...";
 
 
     [SyncVar(hook = nameof(SetCards))] private List<int> _myCards = new List<int>();
+    [SyncVar(hook = nameof(PlayTurn))] private bool isMyTurn = false;
+
+    public int cardToPlay;
 
     private NetManLobby _room;
 
@@ -52,16 +60,50 @@ public class NetworkGamePlayer : NetworkBehaviour
     }
 
     [Server]
-    public void SetDisplayName(string newName)
-    {
-        _displayName = newName;
-    }
+    public void SetDisplayName(string newName) => _displayName = newName;
+
+    [Server]
+    public void StartTurn() => isMyTurn = true;
 
     public override void OnStartAuthority()
     {
         lobbyUI.SetActive(true);
     }
 
+
+    // when its turn this will be played
+    public void PlayTurn(bool oldValue, bool newValue) => StartCoroutine(MyTurn());
+
+    IEnumerator MyTurn()
+    {
+        cardToPlay = -1;
+        yield return new WaitForSeconds(7f);
+        isMyTurn = false;
+
+        if (cardToPlay == -1) cardToPlay = PlayRandomCard();
+
+        _myCards.Remove(cardToPlay);
+    }
+
+    private int PlayRandomCard()
+    {
+        // TODO: add logic to play a card from appropriate suit
+        return _myCards[0];
+    }
+
+
+    public void OnButtonClickPlayCard(Card card)
+    {
+        if (!isMyTurn) return;
+        cardToPlay = card.GetValue();
+        card.gameObject.SetActive(false);
+        isMyTurn = false;
+    }
+
+    [Server]
+    public void SetMyCards(List<int> listCards) => _myCards = listCards;
+
+    // syncVAr hook responding to card get set
     public void SetCards(List<int> oldValues, List<int> newCards)
     {
         // instantiating cards on the ui to play
@@ -73,11 +115,5 @@ public class NetworkGamePlayer : NetworkBehaviour
             cardImageDisplay[i].sprite = cardImages.GetCardImage(value, currentCardStyle);
             cards[i].gameObject.SetActive(true);
         }
-    }
-
-    [Server]
-    public void SetMyCards(List<int> listCards)
-    {
-        _myCards = listCards;
     }
 }

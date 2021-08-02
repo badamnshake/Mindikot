@@ -57,9 +57,9 @@ MonoBehaviour:
   team: 1
   teamBlueColor: {r: 0.14509805, g: 0.6784314, b: 0.9058824, a: 0}
   teamOrangeColor: {r: 0.9058824, g: 0.4156863, b: 0.09411766, a: 0}
-  indicatorOffColor: {r: 0.26666668, g: 0.26666668, b: 0.26666668, a: 0}
-  indicatorOnColor: {r: 0, g: 1, b: 0, a: 0}
-  indicatorWarningColor: {r: 1, g: 0, b: 0, a: 0}
+  indicatorOffColor: {r: 0.26666668, g: 0.26666668, b: 0.26666668, a: 1}
+  indicatorOnColor: {r: 0, g: 1, b: 0, a: 1}
+  indicatorWarningColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &2698411481816002520
 GameObject:
   m_ObjectHideFlags: 0
