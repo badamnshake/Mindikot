@@ -5,16 +5,13 @@ using DataStructs;
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class NetworkGamePlayer : NetworkBehaviour
 {
     [Header("UI")] [SerializeField] private GameObject lobbyUI;
-    [SerializeField] private GameObject cardPrefab;
-    [SerializeField] private GameObject playerArea;
     [SerializeField] private CardImages cardImages;
     [SerializeField] private CardStyle currentCardStyle = CardStyle.Normal;
-    [SerializeField] private Image[] cardsDisplay;
-    [SerializeField] private Sprite emptyCard;
 
     [SerializeField] private Image[] cardImageDisplay;
     [SerializeField] private Card[] cards;
@@ -23,12 +20,19 @@ public class NetworkGamePlayer : NetworkBehaviour
     [SerializeField] private Color indicatorOffColor;
     [SerializeField] private Color indicatorOnColor;
     [SerializeField] private Color indicatorWarningColor;
+    [SerializeField] private GameObject yourTurnIndicator;
 
     [SyncVar] private string _displayName = "Loading...";
 
 
     [SyncVar(hook = nameof(SetCards))] private List<int> _myCards = new List<int>();
-    [SyncVar(hook = nameof(OnStartTurn))] private bool isMyTurn = false;
+    [SyncVar(hook = nameof(OnStartTurn))] private bool _isMyTurn = false;
+
+    private Suit _currentSuit;
+    private Suit _rulingSuit;
+    private List<Card> _playableCards = new List<Card>();
+
+    private bool _isSetRulingCards = false;
 
     public int cardToPlay;
 
@@ -63,51 +67,97 @@ public class NetworkGamePlayer : NetworkBehaviour
     public void SetDisplayName(string newName) => _displayName = newName;
 
     [Server]
-    public void StartTurn() => isMyTurn = true;
+    public void StartTurn(Suit currentSuit, Suit rulingSuit)
+    {
+        _isMyTurn = true;
+        _currentSuit = currentSuit;
+        _rulingSuit = rulingSuit;
+    }
 
     public void OnStartTurn(bool oldValue, bool newValue)
     {
-        if (isMyTurn)
+        if (!_isMyTurn) return;
+        yourTurnIndicator.SetActive(true);
+
+        _playableCards.Clear();
+        bool foundCards = false;
+
+        cardToPlay = -1;
+
+        if (!_isSetRulingCards && _rulingSuit != Suit.None)
         {
-            cardToPlay = -1;
-            StartCoroutine(TurnBehaviour());
+            foreach (var card in cards)
+            {
+                if (!IsCardInSuit(_currentSuit, card.GetValue())) continue;
+                card.SetCardRuling();
+            }
+
+            _isSetRulingCards = true;
+            
         }
+
+        if (_currentSuit == Suit.None)
+        {
+            SetAllCardsPlayable();
+        }
+        else
+        {
+            foreach (var card in cards)
+            {
+                if (!IsCardInSuit(_currentSuit, card.GetValue())) continue;
+                if (!foundCards) foundCards = true;
+                _playableCards.Add(card);
+                card.SetInteractable(true);
+            }
+
+            if (!foundCards)
+            {
+                SetAllCardsPlayable();
+                if (_rulingSuit == Suit.None) MessageShow(setRulingCard: true);
+            }
+        }
+
+        StartCoroutine(TurnBehaviour());
     }
 
     IEnumerator TurnBehaviour()
     {
         yield return new WaitForSeconds(7f);
-        if (cardToPlay == -1) cardToPlay = PlayRandomCard();
-
-
-        foreach (var card in cards)
-        {
-            if (card.GetValue() == cardToPlay)
-            {
-                card.gameObject.SetActive(false);
-            }
-        }
-
-        isMyTurn = false;
-        _myCards.Remove(cardToPlay);
+        // if player misses to play a card then play a random card
+        cardToPlay = PlayRandomCard();
+        EndTurn();
     }
 
     public void OnButtonClickPlayCard(Card card)
     {
-        if (isMyTurn)
-        {
-            cardToPlay = card.GetValue();
-            card.gameObject.SetActive(false);
-            StopCoroutine(TurnBehaviour());
-
-            isMyTurn = false;
-            _myCards.Remove(cardToPlay);
-        }
+        if (!_isMyTurn) return;
+        cardToPlay = card.GetValue();
+        card.gameObject.SetActive(false);
+        // if a player plays a card then stop the coroutine
+        StopCoroutine(TurnBehaviour());
+        EndTurn();
     }
 
     public override void OnStartAuthority()
     {
         lobbyUI.SetActive(true);
+    }
+
+    void SetAllCardsPlayable()
+    {
+        foreach (var card in cards)
+        {
+            _playableCards.Add(card);
+            card.SetInteractable(true);
+            card.SetCardRuling();
+        }
+    }
+
+    void EndTurn()
+    {
+        yourTurnIndicator.SetActive(false);
+        foreach (var card in cards) card.SetInteractable(false);
+        _isMyTurn = false;
     }
 
 
@@ -116,12 +166,17 @@ public class NetworkGamePlayer : NetworkBehaviour
 
     private int PlayRandomCard()
     {
-        // TODO: add logic to play a card from appropriate suit
-        return _myCards[0];
-    }
+        Card randomCard = _playableCards[Random.Range(0, _playableCards.Count)];
+        foreach (Card card in cards)
+        {
+            if (card.Equals(randomCard))
+            {
+                card.gameObject.SetActive(false);
+            }
+        }
 
-    bool IsCardInSuit(Suit suit, int card) =>
-        card > (int) suit * 13 - 13 && card <= (int) suit * 13;
+        return randomCard.GetValue();
+    }
 
 
     [Server]
@@ -138,6 +193,23 @@ public class NetworkGamePlayer : NetworkBehaviour
             cards[i].SetValue(value);
             cardImageDisplay[i].sprite = cardImages.GetCardImage(value, currentCardStyle);
             cards[i].gameObject.SetActive(true);
+        }
+    }
+
+    bool IsCardInSuit(Suit suit, int card) =>
+        card > (int) suit * 13 - 13 && card <= (int) suit * 13;
+
+    void MessageShow(bool setRulingCard = false, bool notYourTurn = false)
+    {
+        // TODO: add PopUpMessageSystem
+        if (setRulingCard)
+        {
+            print("hooray define ruling card");
+        }
+
+        if (notYourTurn)
+        {
+            print("its not your turn");
         }
     }
 }

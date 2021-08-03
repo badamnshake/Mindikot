@@ -13,7 +13,9 @@ public class GameHandler : NetworkBehaviour
     private List<NetworkGamePlayer> _playerList = new List<NetworkGamePlayer>();
 
     private List<int> currentHand = new List<int>(4);
-    private int currentTurn = 0;
+
+    private LinkedList<int> turnRotator = new LinkedList<int>(new int[] {0, 1, 2, 3});
+    private LinkedListNode<int> _currentTurn;
 
     [SerializeField] private GameObject scoreBoardPrefab;
 
@@ -24,6 +26,8 @@ public class GameHandler : NetworkBehaviour
     public void StartGame()
     {
         if (!isServer) return;
+
+        _currentTurn = turnRotator.First;
 
         gameState = GameState.Start;
 
@@ -57,46 +61,57 @@ public class GameHandler : NetworkBehaviour
     [Server]
     IEnumerator GameLoop()
     {
-        currentTurn = 0;
         Team winnerTeam; // blue team wins -1 orange -2
         Suit currentTurnSuit = Suit.None;
-        Suit rullingSuit = Suit.None;
+        Suit rulingSuit = Suit.None;
         int wasMindiHand;
+        _currentTurn = turnRotator.First;
 
         for (int i = 0; i < 13; i++)
         {
-            currentHand.Clear();
-            
+            currentHand = new List<int>(4);
+            var turnIndex = new List<int>(4);
+
             for (int j = 0; j < 4; j++)
             {
-                var playerInTurn = _playerList[currentTurn];
-                playerInTurn.StartTurn();
+                var playerInTurn = _playerList[_currentTurn.Value];
+                playerInTurn.StartTurn(currentTurnSuit, rulingSuit);
 
-                yield return new WaitUntil(() => playerInTurn.cardToPlay > -1);
-                if (currentTurnSuit == Suit.None) currentTurnSuit = DeckManager.GetCardSuit(playerInTurn.cardToPlay);
+                yield return new WaitWhile(() => playerInTurn.cardToPlay == -1);
+                print("current Turn was" + _currentTurn.Value);
 
-                currentHand[currentTurn] = playerInTurn.cardToPlay;
+                Suit playedCardSuit = DeckManager.GetCardSuit(playerInTurn.cardToPlay);
+                if (currentTurnSuit == Suit.None)
+                {
+                    currentTurnSuit = playedCardSuit;
+                }
+                else if (playedCardSuit != currentTurnSuit)
+                {
+                    rulingSuit = playedCardSuit;
+                }
+
+                turnIndex.Add(_currentTurn.Value);
                 currentHand.Add(playerInTurn.cardToPlay);
                 RotateTurn();
             }
 
-            int winIndex = DeckManager.DeclareWinnerCard(currentHand, currentTurnSuit, rullingSuit, out wasMindiHand);
+            int winIndex = DeckManager.DeclareWinnerCard(currentHand, currentTurnSuit, rulingSuit, out wasMindiHand);
 
-            currentTurn = winIndex;
+            _currentTurn = turnRotator.Find(turnIndex[winIndex]);
 
-            if (winIndex == 0 || winIndex == 2)
-                winnerTeam = Team.Blue;
-            else
-                winnerTeam = Team.Orange;
+            winnerTeam = turnIndex[winIndex] % 2 == 0 ? Team.Blue : Team.Orange;
+
             _scoreBoard.IncreaseTeamHandCount(winnerTeam);
 
             if (wasMindiHand != -1) _scoreBoard.MindiIsCaptured(DeckManager.GetCardSuit(wasMindiHand), winnerTeam);
+
+            yield return new WaitForSeconds(2f);
         }
     }
 
 
     [Server]
-    void RotateTurn() => currentTurn = currentTurn + 1 == _playerList.Count ? 0 : currentTurn + 1;
+    void RotateTurn() => _currentTurn = _currentTurn.Next ?? _currentTurn.List.First;
 
 
     public void SetPlayers(List<NetworkGamePlayer> gamePlayers) => _playerList = gamePlayers;
